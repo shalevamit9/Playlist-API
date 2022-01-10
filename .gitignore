@@ -1,0 +1,9 @@
+node_modules
+crud-requests-postman.json
+express-mongo-crud.zip
+.env
+db-data
+dist
+coverage
+.nyc_output
+typings
