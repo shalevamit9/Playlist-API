@@ -3,6 +3,10 @@ import SongModel from '../song/song.model.js';
 import { ICreateArtistDto, IUpdateArtistDto } from './artist.interface.js';
 import ArtistModel, { IArtist } from './artist.model.js';
 
+type Artist = {
+  artist: IArtist & Document<unknown, unknown, IArtist>;
+};
+
 class ArtistRepository {
   async getAllArtists() {
     const artists = await ArtistModel.find();
@@ -19,12 +23,7 @@ class ArtistRepository {
   }
 
   async getSongArtist(songId: string) {
-    type ArtistPopulation = {
-      artist: IArtist & Document<unknown, unknown, IArtist>;
-    };
-    const song = await SongModel.findById(songId).populate<ArtistPopulation>(
-      'artist'
-    );
+    const song = await SongModel.findById(songId).populate<Artist>('artist');
     if (!song) return null;
 
     return song.artist;
