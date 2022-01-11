@@ -7,4 +7,4 @@ interface ISongDto {
 
 export type ICreateSongDto = Omit<ISongDto, '_id'>;
 
-export type IUpdateSongDto = Partial<Omit<ICreateSongDto, 'artist'>>;
+export type IUpdateSongDto = Partial<ICreateSongDto>;
