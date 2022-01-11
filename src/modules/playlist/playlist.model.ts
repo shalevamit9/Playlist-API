@@ -1,10 +1,10 @@
-import mongoose from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { ISong, SongSchema } from '../song/song.model.js';
 
 const { Schema, model } = mongoose;
 
 interface IPlaylist {
-  songs: ISong[];
+  songs: HydratedDocument<ISong>[];
 }
 
 export const PlaylistSchema = new Schema<IPlaylist>({

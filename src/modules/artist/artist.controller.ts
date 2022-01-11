@@ -92,6 +92,6 @@ class ArtistController {
   };
 }
 
-const userController = new ArtistController();
+const artistController = new ArtistController();
 
-export default userController;
+export default artistController;

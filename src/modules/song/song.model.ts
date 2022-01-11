@@ -9,9 +9,9 @@ export interface ISong {
 }
 
 export const SongSchema = new Schema<ISong>({
-  artist: { type: Schema.Types.ObjectId, ref: 'artist' },
-  name: String,
-  uri: String
+  artist: { type: Schema.Types.ObjectId, ref: 'artist', required: true },
+  name: { type: String, required: true },
+  uri: { type: String, required: true }
 });
 
 export default model<ISong>('song', SongSchema);

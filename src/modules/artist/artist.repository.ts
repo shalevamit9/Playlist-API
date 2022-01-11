@@ -1,11 +1,9 @@
-import { Document } from 'mongoose';
+import { HydratedDocument } from 'mongoose';
 import SongModel from '../song/song.model.js';
 import { ICreateArtistDto, IUpdateArtistDto } from './artist.interface.js';
 import ArtistModel, { IArtist } from './artist.model.js';
 
-type Artist = {
-  artist: IArtist & Document<unknown, unknown, IArtist>;
-};
+type Artist = { artist: HydratedDocument<IArtist> };
 
 class ArtistRepository {
   async getAllArtists() {
@@ -15,10 +13,6 @@ class ArtistRepository {
 
   async getArtistById(id: string) {
     const artist = await ArtistModel.findById(id);
-
-    // populate typescript example
-    // const artpop = await artist?.populate<{songs:(ISong & Document)[]}>('songs');
-    // artpop?.songs[0].populate
     return artist;
   }
 
@@ -29,13 +23,13 @@ class ArtistRepository {
     return song.artist;
   }
 
-  async createArtist(userDto: ICreateArtistDto) {
-    const artist = await ArtistModel.create(userDto);
+  async createArtist(artistDto: ICreateArtistDto) {
+    const artist = await ArtistModel.create(artistDto);
     return artist;
   }
 
-  async updateArtist(id: string, userDto: IUpdateArtistDto) {
-    const artist = await ArtistModel.findByIdAndUpdate(id, userDto, {
+  async updateArtist(id: string, artistDto: IUpdateArtistDto) {
+    const artist = await ArtistModel.findByIdAndUpdate(id, artistDto, {
       new: true
     });
     return artist;

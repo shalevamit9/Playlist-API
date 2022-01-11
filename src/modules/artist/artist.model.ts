@@ -9,8 +9,8 @@ export interface IArtist {
 }
 
 export const ArtistSchema = new Schema<IArtist>({
-  firstName: String,
-  lastName: String,
+  firstName: { type: String, required: true },
+  lastName: { type: String, required: true },
   songs: [{ type: Schema.Types.ObjectId, ref: 'song' }]
 });
 
