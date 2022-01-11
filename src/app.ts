@@ -14,6 +14,7 @@ import { logger } from './middleware/logger.middleware.js';
 import { attachRequestId } from './middleware/attachRequestId.middleware.js';
 import artistRouter from './modules/artist/artist.router.js';
 import songRouter from './modules/song/song.router.js';
+import playlistRouter from './modules/playlist/playlist.router.js';
 
 const { cwd } = process;
 const { PORT = 8080, HOST = 'localhost', DB_URI } = process.env;
@@ -44,6 +45,7 @@ class App {
   private initializeRoutes() {
     this._app.use(`${App.API_PATH}/artists`, artistRouter.router);
     this._app.use(`${App.API_PATH}/songs`, songRouter.router);
+    this._app.use(`${App.API_PATH}/playlists`, playlistRouter.router);
   }
 
   private initializeErrorMiddlewares() {
