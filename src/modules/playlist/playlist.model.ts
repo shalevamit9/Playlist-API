@@ -3,7 +3,7 @@ import { ISong, SongSchema } from '../song/song.model.js';
 
 const { Schema, model } = mongoose;
 
-interface IPlaylist {
+export interface IPlaylist {
   songs: HydratedDocument<ISong>[];
 }
 
