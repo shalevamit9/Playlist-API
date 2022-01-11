@@ -12,11 +12,13 @@ import {
 import { connectDb } from './db/mongoose.connection.js';
 import { logger } from './middleware/logger.middleware.js';
 import { attachRequestId } from './middleware/attachRequestId.middleware.js';
+import artistRouter from './modules/artist/artist.router.js';
 
 const { cwd } = process;
 const { PORT = 8080, HOST = 'localhost', DB_URI } = process.env;
 
 class App {
+  static readonly API_PATH = '/api';
   static readonly REQUESTS_LOG_PATH = path.join(cwd(), 'logs', 'requests.log');
   static readonly ERRORS_LOG_PATH = path.join(cwd(), 'logs', 'errors.log');
 
@@ -38,8 +40,9 @@ class App {
     this._app.use(express.json());
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-empty-function
-  private initializeRoutes() {}
+  private initializeRoutes() {
+    this._app.use(`${App.API_PATH}/artists`, artistRouter.router);
+  }
 
   private initializeErrorMiddlewares() {
     this._app.use(urlNotFound);

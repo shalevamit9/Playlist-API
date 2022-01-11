@@ -6,7 +6,14 @@ export default (asyncCb: RequestHandler): RequestHandler => {
     try {
       await asyncCb(req, res, next);
     } catch (err) {
-      next(new InternalServerException((err as Error).message));
+      const { message, stack } = err as Error;
+
+      const error = new InternalServerException(message);
+      if (stack) {
+        error.stack = stack;
+      }
+
+      next(error);
     }
   };
 };
