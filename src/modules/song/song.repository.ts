@@ -27,9 +27,9 @@ class SongRepository {
   }
 
   async createSong(songDto: ICreateSongDto) {
-    const song = await SongModel.create(songDto);
-    const artist = await ArtistModel.findById(song.artist);
+    const artist = await ArtistModel.findById(songDto.artist);
     if (!artist) return null;
+    const song = await SongModel.create(songDto);
 
     artist.songs.push(song._id);
     await artist.save();
@@ -42,8 +42,12 @@ class SongRepository {
     });
     if (!song) return null;
 
-    const playlists = await PlaylistModel.find();
+    const playlists = await Promise.all(
+      song.playlists.map((playlistId) => PlaylistModel.findById(playlistId))
+    );
     const pending = playlists.map((playlist) => {
+      if (!playlist) return null;
+
       const songIndex = playlist.songs.findIndex((song) => song._id.equals(id));
       playlist.songs[songIndex] = song;
 
@@ -68,10 +72,8 @@ class SongRepository {
       playlist.songs = playlist.songs.filter((song) => !song._id.equals(id));
     });
 
-    await Promise.all([
-      artist.save(),
-      playlists.map((playlist) => playlist.save())
-    ]);
+    await Promise.all([...playlists.map((playlist) => playlist.save())]);
+    await artist.save();
 
     return deletedSong;
   }

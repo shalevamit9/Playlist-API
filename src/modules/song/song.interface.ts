@@ -3,6 +3,7 @@ interface ISongDto {
   name: string;
   artist: string;
   uri: string;
+  playlists: string[];
 }
 
 export type ICreateSongDto = Omit<ISongDto, '_id'>;

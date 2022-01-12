@@ -1,4 +1,5 @@
 import { HydratedDocument } from 'mongoose';
+import PlaylistModel from '../playlist/playlist.model.js';
 import SongModel from '../song/song.model.js';
 import { ICreateArtistDto, IUpdateArtistDto } from './artist.interface.js';
 import ArtistModel, { IArtist } from './artist.model.js';
@@ -38,6 +39,9 @@ class ArtistRepository {
   async deleteArtist(id: string) {
     const artist = await ArtistModel.findByIdAndDelete(id);
     if (!artist) return null;
+
+    const playlists = await PlaylistModel.find();
+    if (!playlists) return null;
 
     await Promise.all(
       artist.songs.map((songId) => SongModel.findByIdAndDelete(songId))

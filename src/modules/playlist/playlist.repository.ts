@@ -18,6 +18,17 @@ class PlaylistRepository {
 
   async createPlaylist(playlistDto: ICreatePlaylistDto) {
     const playlist = await PlaylistModel.create(playlistDto);
+
+    const pendingSongs = playlist.songs.map(async (song) => {
+      const songModel = await SongModel.findById(song._id);
+      if (!songModel) return null;
+
+      songModel.playlists.push(playlist._id);
+      return await songModel.save();
+    });
+
+    await Promise.all(pendingSongs);
+
     return playlist;
   }
 
@@ -43,6 +54,16 @@ class PlaylistRepository {
 
   async deletePlaylist(id: string) {
     const playlist = await PlaylistModel.findByIdAndDelete(id);
+    if (!playlist) return null;
+
+    const pending = playlist.songs.map(async (song) => {
+      const songModel = await SongModel.findById(song._id);
+      if (!songModel) return null;
+      songModel.playlists = songModel.playlists.filter((playlistId) =>
+        playlistId.equals(id)
+      );
+    });
+    await Promise.all(pending);
     return playlist;
   }
 
