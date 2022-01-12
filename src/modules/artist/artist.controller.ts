@@ -17,11 +17,11 @@ class ArtistController {
     res.status(response.status).json(response);
   };
 
-  getArtistById: RequestHandler = async (req, res, next) => {
+  getArtistById: RequestHandler = async (req, res) => {
     const { id } = req.params;
 
     const artist = await artistService.getArtistById(id);
-    if (!artist) return next(new UrlNotFoundException(req.originalUrl));
+    if (!artist) throw new UrlNotFoundException(req.originalUrl);
 
     const response: ResponseMessage = {
       status: 200,
@@ -32,11 +32,11 @@ class ArtistController {
     res.status(response.status).json(response);
   };
 
-  getSongArtist: RequestHandler = async (req, res, next) => {
+  getSongArtist: RequestHandler = async (req, res) => {
     const { id: songId } = req.params;
 
     const artist = await artistService.getSongArtist(songId);
-    if (!artist) return next(new UrlNotFoundException(req.originalUrl));
+    if (!artist) throw new UrlNotFoundException(req.originalUrl);
 
     const response: ResponseMessage = {
       status: 200,
@@ -60,12 +60,12 @@ class ArtistController {
     res.status(response.status).json(response);
   };
 
-  updateArtist: RequestHandler = async (req, res, next) => {
+  updateArtist: RequestHandler = async (req, res) => {
     const artistDto: IUpdateArtistDto = req.body;
     const { id } = req.params;
 
     const artist = await artistService.updateArtist(id, artistDto);
-    if (!artist) return next(new UrlNotFoundException(req.originalUrl));
+    if (!artist) throw new UrlNotFoundException(req.originalUrl);
 
     const response: ResponseMessage = {
       status: 204,
@@ -76,11 +76,11 @@ class ArtistController {
     res.status(response.status).json(response);
   };
 
-  deleteArtist: RequestHandler = async (req, res, next) => {
+  deleteArtist: RequestHandler = async (req, res) => {
     const { id } = req.params;
 
     const artist = await artistService.deleteArtist(id);
-    if (!artist) return next(new UrlNotFoundException(req.originalUrl));
+    if (!artist) throw new UrlNotFoundException(req.originalUrl);
 
     const response: ResponseMessage = {
       status: 204,

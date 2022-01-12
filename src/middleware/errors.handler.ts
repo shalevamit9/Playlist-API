@@ -42,8 +42,8 @@ export const errorLogger = (filepath: string): ErrorMiddleware => {
 export const errorResponse: ErrorMiddleware = (err, req, res, next) => {
   const { message, status, stack } = err;
   const response: ErrorMessage = {
-    message,
-    status
+    message: message || 'something went wrong...',
+    status: status || 500
   };
 
   if (NODE_ENV !== 'production') {

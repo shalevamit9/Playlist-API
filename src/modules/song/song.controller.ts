@@ -17,11 +17,11 @@ class SongController {
     res.status(response.status).json(response);
   };
 
-  getSongById: RequestHandler = async (req, res, next) => {
+  getSongById: RequestHandler = async (req, res) => {
     const { id } = req.params;
 
     const song = await songService.getSongById(id);
-    if (!song) return next(new UrlNotFoundException(req.originalUrl));
+    if (!song) throw new UrlNotFoundException(req.originalUrl);
 
     const response: ResponseMessage = {
       status: 200,
@@ -32,11 +32,11 @@ class SongController {
     res.status(response.status).json(response);
   };
 
-  getArtistSongs: RequestHandler = async (req, res, next) => {
+  getArtistSongs: RequestHandler = async (req, res) => {
     const { id: artistId } = req.params;
 
     const songs = await songService.getArtistSongs(artistId);
-    if (!songs) return next(new UrlNotFoundException(req.originalUrl));
+    if (!songs) throw new UrlNotFoundException(req.originalUrl);
 
     const response: ResponseMessage = {
       status: 200,
@@ -60,12 +60,12 @@ class SongController {
     res.status(response.status).json(response);
   };
 
-  updateSong: RequestHandler = async (req, res, next) => {
+  updateSong: RequestHandler = async (req, res) => {
     const songDto: IUpdateSongDto = req.body;
     const { id } = req.params;
 
     const song = await songService.updateSong(id, songDto);
-    if (!song) return next(new UrlNotFoundException(req.originalUrl));
+    if (!song) throw new UrlNotFoundException(req.originalUrl);
 
     const response: ResponseMessage = {
       status: 204,
@@ -76,11 +76,11 @@ class SongController {
     res.status(response.status).json(response);
   };
 
-  deleteSong: RequestHandler = async (req, res, next) => {
+  deleteSong: RequestHandler = async (req, res) => {
     const { id } = req.params;
 
     const song = await songService.deleteSong(id);
-    if (!song) return next(new UrlNotFoundException(req.originalUrl));
+    if (!song) throw new UrlNotFoundException(req.originalUrl);
 
     const response: ResponseMessage = {
       status: 204,

@@ -20,11 +20,11 @@ class PlaylistController {
     res.status(response.status).json(response);
   };
 
-  getPlaylistById: RequestHandler = async (req, res, next) => {
+  getPlaylistById: RequestHandler = async (req, res) => {
     const { id } = req.params;
 
     const playlist = await playlistService.getPlaylistById(id);
-    if (!playlist) return next(new UrlNotFoundException(req.originalUrl));
+    if (!playlist) throw new UrlNotFoundException(req.originalUrl);
 
     const response: ResponseMessage = {
       status: 200,
@@ -48,13 +48,13 @@ class PlaylistController {
     res.status(response.status).json(response);
   };
 
-  addSongToPlaylist: RequestHandler = async (req, res, next) => {
+  addSongToPlaylist: RequestHandler = async (req, res) => {
     const { playlistId, songId } = req.params;
     const playlist = await playlistService.addSongToPlaylist(
       playlistId,
       songId
     );
-    if (!playlist) return next(new UrlNotFoundException(req.originalUrl));
+    if (!playlist) throw new UrlNotFoundException(req.originalUrl);
 
     const response: ResponseMessage = {
       status: 204,
@@ -65,12 +65,12 @@ class PlaylistController {
     res.status(response.status).json(response);
   };
 
-  updatePlaylist: RequestHandler = async (req, res, next) => {
+  updatePlaylist: RequestHandler = async (req, res) => {
     const playlistDto: IUpdatePlaylistDto = req.body;
     const { id } = req.params;
 
     const playlist = await playlistService.updatePlaylist(id, playlistDto);
-    if (!playlist) return next(new UrlNotFoundException(req.originalUrl));
+    if (!playlist) throw new UrlNotFoundException(req.originalUrl);
 
     const response: ResponseMessage = {
       status: 204,
@@ -81,11 +81,11 @@ class PlaylistController {
     res.status(response.status).json(response);
   };
 
-  deletePlaylist: RequestHandler = async (req, res, next) => {
+  deletePlaylist: RequestHandler = async (req, res) => {
     const { id } = req.params;
 
     const playlist = await playlistService.deletePlaylist(id);
-    if (!playlist) return next(new UrlNotFoundException(req.originalUrl));
+    if (!playlist) throw new UrlNotFoundException(req.originalUrl);
 
     const response: ResponseMessage = {
       status: 204,
@@ -96,13 +96,13 @@ class PlaylistController {
     res.status(response.status).json(response);
   };
 
-  deleteSongFromPlaylist: RequestHandler = async (req, res, next) => {
+  deleteSongFromPlaylist: RequestHandler = async (req, res) => {
     const { playlistId, songId } = req.params;
     const playlist = await playlistService.deleteSongFromPlaylist(
       playlistId,
       songId
     );
-    if (!playlist) return next(new UrlNotFoundException(req.originalUrl));
+    if (!playlist) throw new UrlNotFoundException(req.originalUrl);
 
     const response: ResponseMessage = {
       status: 204,

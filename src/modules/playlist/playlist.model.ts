@@ -11,4 +11,4 @@ export const PlaylistSchema = new Schema<IPlaylist>({
   songs: [SongSchema]
 });
 
-export default model<IPlaylist>('song', PlaylistSchema);
+export default model<IPlaylist>('playlist', PlaylistSchema);

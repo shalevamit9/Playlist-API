@@ -37,6 +37,12 @@ class ArtistRepository {
 
   async deleteArtist(id: string) {
     const artist = await ArtistModel.findByIdAndDelete(id);
+    if (!artist) return null;
+
+    await Promise.all(
+      artist.songs.map((songId) => SongModel.findByIdAndDelete(songId))
+    );
+
     return artist;
   }
 }

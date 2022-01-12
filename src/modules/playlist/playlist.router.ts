@@ -20,7 +20,7 @@ class PlaylistRouter {
     this._router.delete('/:id', raw(playlistController.deletePlaylist));
     this._router.delete(
       '/:playlistId/song/:songId',
-      playlistController.deleteSongFromPlaylist
+      raw(playlistController.deleteSongFromPlaylist)
     );
   }
 

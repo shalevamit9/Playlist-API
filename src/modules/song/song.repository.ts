@@ -28,6 +28,11 @@ class SongRepository {
 
   async createSong(songDto: ICreateSongDto) {
     const song = await SongModel.create(songDto);
+    const artist = await ArtistModel.findById(song.artist);
+    if (!artist) return null;
+
+    artist.songs.push(song._id);
+    await artist.save();
     return song;
   }
 
