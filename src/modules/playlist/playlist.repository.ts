@@ -40,7 +40,9 @@ class PlaylistRepository {
     if (!playlist || !song) return null;
 
     playlist.songs.push(song);
-    await playlist.save();
+    song.playlists.push(playlist._id);
+
+    await Promise.all([playlist.save(), song.save()]);
 
     return playlist;
   }
@@ -59,20 +61,32 @@ class PlaylistRepository {
     const pending = playlist.songs.map(async (song) => {
       const songModel = await SongModel.findById(song._id);
       if (!songModel) return null;
-      songModel.playlists = songModel.playlists.filter((playlistId) =>
-        playlistId.equals(id)
-      );
+      // songModel.playlists = songModel.playlists.filter(
+      //   (playlistId) => !playlistId.equals(id)
+      // );
+      songModel.playlists.pull(id);
+
+      return await songModel.save();
     });
     await Promise.all(pending);
     return playlist;
   }
 
   async deleteSongFromPlaylist(playlistId: string, songId: string) {
-    const playlist = await PlaylistModel.findById(playlistId);
-    if (!playlist) return null;
+    const [playlist, song] = await Promise.all([
+      PlaylistModel.findById(playlistId),
+      SongModel.findById(songId)
+    ]);
+    if (!playlist || !song) return null;
 
-    playlist.songs = playlist.songs.filter((song) => song._id.equals(songId));
-    await playlist.save();
+    playlist.songs.pull(songId);
+    song.playlists.pull(playlistId);
+    // playlist.songs = playlist.songs.filter((song) => !song._id.equals(songId));
+    // song.playlists = song.playlists.filter(
+    //   (playId) => !playId.equals(playlistId)
+    // );
+
+    await Promise.all([playlist.save(), song.save()]);
 
     return playlist;
   }

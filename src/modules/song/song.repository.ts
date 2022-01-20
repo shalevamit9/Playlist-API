@@ -69,10 +69,11 @@ class SongRepository {
 
     const playlists = await PlaylistModel.find();
     playlists.forEach((playlist) => {
-      playlist.songs = playlist.songs.filter((song) => !song._id.equals(id));
+      // playlist.songs = playlist.songs.filter((song) => !song._id.equals(id));
+      playlist.songs.pull(id);
     });
 
-    await Promise.all([...playlists.map((playlist) => playlist.save())]);
+    await Promise.all(playlists.map((playlist) => playlist.save()));
     await artist.save();
 
     return deletedSong;

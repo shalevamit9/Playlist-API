@@ -6,7 +6,7 @@ export interface ISong {
   artist: Types.ObjectId;
   name: string;
   uri: string;
-  playlists: Types.ObjectId[];
+  playlists: Types.Array<Types.ObjectId>;
 }
 
 export const SongSchema = new Schema<ISong>({

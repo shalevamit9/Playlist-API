@@ -1,5 +1,6 @@
 import path from 'path';
 import express, { Application } from 'express';
+import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import cors from 'cors';
 import log from '@ajar/marker';
@@ -15,6 +16,8 @@ import { attachRequestId } from './middleware/attachRequestId.middleware.js';
 import artistRouter from './modules/artist/artist.router.js';
 import songRouter from './modules/song/song.router.js';
 import playlistRouter from './modules/playlist/playlist.router.js';
+import userRouter from './modules/user/user.router.js';
+import authRouter from './modules/auth/auth.router.js';
 
 const { cwd } = process;
 const { PORT = 8080, HOST = 'localhost', DB_URI } = process.env;
@@ -40,12 +43,16 @@ class App {
     this._app.use(morgan('dev'));
     this._app.use(logger(App.REQUESTS_LOG_PATH));
     this._app.use(express.json());
+    this._app.use(cookieParser());
   }
 
   private initializeRoutes() {
-    this._app.use(`${App.API_PATH}/artists`, artistRouter.router);
-    this._app.use(`${App.API_PATH}/songs`, songRouter.router);
-    this._app.use(`${App.API_PATH}/playlists`, playlistRouter.router);
+    const { API_PATH } = App;
+    this._app.use(`${API_PATH}/artists`, artistRouter.router);
+    this._app.use(`${API_PATH}/songs`, songRouter.router);
+    this._app.use(`${API_PATH}/playlists`, playlistRouter.router);
+    this._app.use(`${API_PATH}/users`, userRouter.router);
+    this._app.use(`${API_PATH}/auth`, authRouter.router);
   }
 
   private initializeErrorMiddlewares() {
