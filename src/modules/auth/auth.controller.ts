@@ -1,5 +1,6 @@
 import { RequestHandler } from 'express';
 import ms from 'ms';
+import { ConflictException } from '../../exceptions/conflict.exception.js';
 import { UnauthorizedException } from '../../exceptions/unauthorized.exception.js';
 import { ResponseMessage } from '../../types/messages.interface.js';
 import { ILoginCredentials, ISignupCredentials } from './auth.interface.js';
@@ -48,6 +49,7 @@ class AuthController {
     const credentials: ISignupCredentials = req.body;
 
     const tokens = await authService.signup(credentials);
+    if (!tokens) throw new ConflictException();
     const { accessToken, refreshToken } = tokens;
 
     const response: ResponseMessage = {

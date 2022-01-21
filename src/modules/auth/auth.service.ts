@@ -2,7 +2,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { ILoginCredentials, ISignupCredentials } from './auth.interface.js';
-import UserRepository from '../user/user.repository.js';
+import userRepository from '../user/user.repository.js';
 import { ICreateUserDto } from '../user/user.interface.js';
 
 const { APP_SECRET, ACCESS_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } =
@@ -30,6 +30,8 @@ class AuthService {
 
   async signup(credentials: ISignupCredentials) {
     // optional - check if email already exists in DB
+    const existingUser = await userRepository.getUserByEmail(credentials.email);
+    if (!existingUser) return null;
 
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(credentials.password, salt);
@@ -39,11 +41,11 @@ class AuthService {
       password: hashedPassword,
       playlists: []
     };
-    const user = await UserRepository.createUser(userPayload);
+    const user = await userRepository.createUser(userPayload);
 
     const tokens = this.generateTokens({ userId: user._id });
 
-    await UserRepository.updateUser(user._id, {
+    await userRepository.updateUser(user._id, {
       refreshToken: tokens.refreshToken
     });
 
@@ -53,7 +55,7 @@ class AuthService {
   async login(credentials: ILoginCredentials) {
     const { email, password } = credentials;
 
-    const user = await UserRepository.getUserByEmail(email);
+    const user = await userRepository.getUserByEmail(email);
     if (!user) return false;
 
     const isEqual = await bcrypt.compare(password, user.password);
@@ -62,7 +64,7 @@ class AuthService {
     const tokenPayload = { userId: user._id };
     const tokens = this.generateTokens(tokenPayload);
 
-    await UserRepository.updateUser(user._id, {
+    await userRepository.updateUser(user._id, {
       refreshToken: tokens.refreshToken
     });
 
@@ -70,7 +72,7 @@ class AuthService {
   }
 
   async logout(userId: string) {
-    const user = await UserRepository.updateUser(userId, {
+    const user = await userRepository.updateUser(userId, {
       refreshToken: null
     });
     return user;
@@ -87,7 +89,7 @@ class AuthService {
     }
 
     const { userId } = decoded;
-    const user = await UserRepository.getUserById(userId);
+    const user = await userRepository.getUserById(userId);
     if (!user) return null;
 
     if (user.refreshToken !== refreshToken) return null;
