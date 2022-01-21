@@ -29,7 +29,6 @@ class AuthService {
   }
 
   async signup(credentials: ISignupCredentials) {
-    // optional - check if email already exists in DB
     const existingUser = await userRepository.getUserByEmail(credentials.email);
     if (!existingUser) return null;
 
