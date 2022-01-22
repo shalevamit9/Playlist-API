@@ -8,7 +8,7 @@ class SongRepository {
     return songs as ISong[];
   }
 
-  async getSongById(id: string) {
+  async getSongById(id: string | number) {
     const [songs] = (await db.query(
       'SELECT * FROM songs WHERE songId = ?;',
       id
@@ -17,7 +17,7 @@ class SongRepository {
     return songs[0] as ISong;
   }
 
-  async getArtistSongs(artistId: string) {
+  async getArtistSongs(artistId: string | number) {
     const [songs] = await db.query(
       'SELECT * FROM songs WHERE artistId = ?;',
       artistId
@@ -33,17 +33,17 @@ class SongRepository {
       songDto
     )) as ResultSetHeader[];
 
-    const song = await this.getSongById(result.insertId.toString());
+    const song = await this.getSongById(result.insertId);
     return song;
   }
 
-  async updateSong(id: string, songDto: IUpdateSongDto) {
+  async updateSong(id: string | number, songDto: IUpdateSongDto) {
     await db.query('UPDATE songs SET ? WHERE songId = ?;', [songDto, id]);
     const song = await this.getSongById(id);
     return song;
   }
 
-  async deleteSong(id: string) {
+  async deleteSong(id: string | number) {
     const pendingSong = this.getSongById(id);
 
     // const payload = { songId: id };
@@ -56,11 +56,9 @@ class SongRepository {
     return song;
   }
 
-  async deleteArtistSongs(artistId: string) {
+  async deleteArtistSongs(artistId: string | number) {
     const songs = await this.getArtistSongs(artistId);
-    const pending = songs.map((song) =>
-      this.deleteSong(song.songId.toString())
-    );
+    const pending = songs.map((song) => this.deleteSong(song.songId));
 
     return await Promise.all(pending);
   }
