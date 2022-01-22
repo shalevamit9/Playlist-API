@@ -12,7 +12,7 @@ class ArtistRepository {
   async getArtistById(id: string) {
     const [artists] = (await db.query(
       'SELECT * FROM artists WHERE artistId = ?;',
-      [id]
+      id
     )) as RowDataPacket[][];
 
     return artists[0] as IArtist;
