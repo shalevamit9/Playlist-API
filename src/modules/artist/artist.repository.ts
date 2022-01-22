@@ -39,10 +39,7 @@ class ArtistRepository {
   }
 
   async updateArtist(id: string, artistDto: IUpdateArtistDto) {
-    (await db.query('UPDATE artists SET ? WHERE artistId = ?;', [
-      artistDto,
-      id
-    ])) as ResultSetHeader[];
+    await db.query('UPDATE artists SET ? WHERE artistId = ?;', [artistDto, id]);
     const artist = this.getArtistById(id);
     return artist;
   }
