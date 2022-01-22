@@ -10,7 +10,7 @@ import {
   printError,
   urlNotFound
 } from './middleware/errors.handler.js';
-import { connectDb } from './db/mongoose.connection.js';
+import { connectDb } from './db/mysql.connection.js';
 import { logger } from './middleware/logger.middleware.js';
 import { attachRequestId } from './middleware/attachRequestId.middleware.js';
 import artistRouter from './modules/artist/artist.router.js';
@@ -20,7 +20,14 @@ import userRouter from './modules/user/user.router.js';
 import authRouter from './modules/auth/auth.router.js';
 
 const { cwd } = process;
-const { PORT = 8080, HOST = 'localhost', DB_URI } = process.env;
+const {
+  PORT = 8080,
+  HOST = 'localhost',
+  DB_HOST,
+  DB_USER,
+  DB_PASSWORD,
+  DB_NAME
+} = process.env;
 
 class App {
   static readonly API_PATH = '/api';
@@ -63,7 +70,13 @@ class App {
   }
 
   async start() {
-    await connectDb(DB_URI as string);
+    await connectDb({
+      host: DB_HOST,
+      user: DB_USER,
+      password: DB_PASSWORD,
+      database: DB_NAME
+    });
+
     this._app.listen(Number(PORT), HOST as string, () => {
       log.magenta('api is live on', ` ✨ ⚡  http://${HOST}:${PORT} ✨ ⚡`);
     });
