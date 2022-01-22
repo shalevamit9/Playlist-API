@@ -1,52 +1,58 @@
-import { HydratedDocument } from 'mongoose';
-import PlaylistModel from '../playlist/playlist.model.js';
-import SongModel from '../song/song.model.js';
+import { db } from '../../db/mysql.connection.js';
 import { ICreateArtistDto, IUpdateArtistDto } from './artist.interface.js';
-import ArtistModel, { IArtist } from './artist.model.js';
-
-type Artist = { artist: HydratedDocument<IArtist> };
+import { IArtist } from './artist.interface.js';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 class ArtistRepository {
   async getAllArtists() {
-    const artists = await ArtistModel.find();
-    return artists;
+    const [artists] = await db.query('SELECT * FROM artists;');
+    return artists as IArtist[];
   }
 
   async getArtistById(id: string) {
-    const artist = await ArtistModel.findById(id);
-    return artist;
+    const [rows] = (await db.query(
+      'SELECT * FROM artists WHERE artist_id = ?;',
+      [id]
+    )) as RowDataPacket[][];
+
+    return rows[0] as IArtist;
   }
 
   async getSongArtist(songId: string) {
-    const song = await SongModel.findById(songId).populate<Artist>('artist');
-    if (!song) return null;
+    const [rows] = (await db.query(
+      'SELECT * FROM artists WHERE artist_id = (SELECT artist_id FROM songs WHERE song_id = ?);',
+      songId
+    )) as RowDataPacket[][];
 
-    return song.artist;
+    return rows[0] as IArtist;
   }
 
   async createArtist(artistDto: ICreateArtistDto) {
-    const artist = await ArtistModel.create(artistDto);
+    artistDto.status_id = 1;
+    const [result] = (await db.query(
+      'INSERT INTO artists SET ?;',
+      artistDto
+    )) as ResultSetHeader[];
+
+    const artist = await this.getArtistById(result.insertId.toString());
     return artist;
   }
 
   async updateArtist(id: string, artistDto: IUpdateArtistDto) {
-    const artist = await ArtistModel.findByIdAndUpdate(id, artistDto, {
-      new: true
-    });
+    (await db.query('UPDATE artists SET ? WHERE artist_id = ?;', [
+      artistDto,
+      id
+    ])) as ResultSetHeader[];
+    const artist = this.getArtistById(id);
     return artist;
   }
 
   async deleteArtist(id: string) {
-    const artist = await ArtistModel.findByIdAndDelete(id);
-    if (!artist) return null;
+    const pendingArtist = this.getArtistById(id);
+    await db.query('DELETE FROM songs WHERE artist_id = ?;', id);
+    await db.query('DELETE FROM artists WHERE artist_id = ?;', id);
 
-    const playlists = await PlaylistModel.find();
-    if (!playlists) return null;
-
-    await Promise.all(
-      artist.songs.map((songId) => SongModel.findByIdAndDelete(songId))
-    );
-
+    const artist = await pendingArtist;
     return artist;
   }
 }
