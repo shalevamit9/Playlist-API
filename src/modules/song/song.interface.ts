@@ -1,11 +1,11 @@
-interface ISongDto {
-  _id: string;
+export interface ISong {
+  songId: number;
   name: string;
-  artist: string;
   uri: string;
-  playlists: string[];
+  artistId: number;
+  statusId: number;
 }
 
-export type ICreateSongDto = Omit<ISongDto, '_id'>;
+export type ICreateSongDto = Omit<ISong, 'songId'>;
 
 export type IUpdateSongDto = Partial<ICreateSongDto>;
