@@ -10,25 +10,25 @@ class ArtistRepository {
   }
 
   async getArtistById(id: string) {
-    const [rows] = (await db.query(
-      'SELECT * FROM artists WHERE artist_id = ?;',
+    const [artists] = (await db.query(
+      'SELECT * FROM artists WHERE artistId = ?;',
       [id]
     )) as RowDataPacket[][];
 
-    return rows[0] as IArtist;
+    return artists[0] as IArtist;
   }
 
   async getSongArtist(songId: string) {
-    const [rows] = (await db.query(
-      'SELECT * FROM artists WHERE artist_id = (SELECT artist_id FROM songs WHERE song_id = ?);',
+    const [artists] = (await db.query(
+      'SELECT * FROM artists WHERE artistId = (SELECT artistId FROM songs WHERE songId = ?);',
       songId
     )) as RowDataPacket[][];
 
-    return rows[0] as IArtist;
+    return artists[0] as IArtist;
   }
 
   async createArtist(artistDto: ICreateArtistDto) {
-    artistDto.status_id = 1;
+    artistDto.statusId = 1;
     const [result] = (await db.query(
       'INSERT INTO artists SET ?;',
       artistDto
@@ -39,7 +39,7 @@ class ArtistRepository {
   }
 
   async updateArtist(id: string, artistDto: IUpdateArtistDto) {
-    (await db.query('UPDATE artists SET ? WHERE artist_id = ?;', [
+    (await db.query('UPDATE artists SET ? WHERE artistId = ?;', [
       artistDto,
       id
     ])) as ResultSetHeader[];
@@ -49,8 +49,8 @@ class ArtistRepository {
 
   async deleteArtist(id: string) {
     const pendingArtist = this.getArtistById(id);
-    await db.query('DELETE FROM songs WHERE artist_id = ?;', id);
-    await db.query('DELETE FROM artists WHERE artist_id = ?;', id);
+    await db.query('DELETE FROM songs WHERE artistId = ?;', id);
+    await db.query('DELETE FROM artists WHERE artistId = ?;', id);
 
     const artist = await pendingArtist;
     return artist;

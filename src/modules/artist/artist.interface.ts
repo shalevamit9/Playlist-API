@@ -1,17 +1,17 @@
-export interface IArtist {
-  artist_id: string;
-  first_name: string;
-  last_name: string;
-  status_id: number;
-}
+// export interface IArtist {
+//   artist_id: string;
+//   first_name: string;
+//   last_name: string;
+//   status_id: number;
+// }
 
-export interface IArtistDto {
+export interface IArtist {
   artistId: string;
   firstName: string;
   lastName: string;
-  statusId: string;
+  statusId: number;
 }
 
-export type ICreateArtistDto = Omit<IArtist, 'artist_id'>;
+export type ICreateArtistDto = Omit<IArtist, 'artistId'>;
 
 export type IUpdateArtistDto = Partial<ICreateArtistDto>;
