@@ -3,6 +3,18 @@ import UserModel from './user.model.js';
 
 class UserRepository {
   async getAllUsers() {
+    // const projection = [
+    //   {
+    //     $project: {
+    //       userId: '$_id',
+    //       _id: 0,
+    //       refreshToken: 1,
+    //       email: 1,
+    //       playlists: 1
+    //     }
+    //   }
+    // ];
+    // const users = await UserModel.aggregate(projection);
     const users = await UserModel.find();
     return users;
   }
