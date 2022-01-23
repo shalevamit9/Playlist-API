@@ -1,13 +1,13 @@
-interface IUserDto {
-  _id: string;
+export interface IUser {
+  userId: number;
   refreshToken: string | null;
   email: string;
   password: string;
-  playlists: string[];
+  roles: string;
 }
 
-export type ICreateUserDto = Omit<Omit<IUserDto, '_id'>, 'refreshToken'>;
+export type ICreateUserDto = Omit<Omit<IUser, 'userId'>, 'refreshToken'>;
 
-export type IUserWithoutPassword = Omit<IUserDto, 'password'>;
+export type IUserWithoutPassword = Omit<IUser, 'password'>;
 
-export type IUpdateUserDto = Partial<IUserDto>;
+export type IUpdateUserDto = Partial<IUser>;
