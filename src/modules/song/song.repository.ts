@@ -4,13 +4,13 @@ import { RowDataPacket, ResultSetHeader } from 'mysql2';
 
 class SongRepository {
   async getAllSongs() {
-    const [songs] = await db.query('SELECT * FROM songs;');
+    const [songs] = await db.query('SELECT * FROM songs');
     return songs as ISong[];
   }
 
   async getSongById(id: string | number) {
     const [songs] = (await db.query(
-      'SELECT * FROM songs WHERE songId = ?;',
+      'SELECT * FROM songs WHERE songId = ?',
       id
     )) as RowDataPacket[][];
 
@@ -19,7 +19,7 @@ class SongRepository {
 
   async getArtistSongs(artistId: string | number) {
     const [songs] = await db.query(
-      'SELECT * FROM songs WHERE artistId = ?;',
+      'SELECT * FROM songs WHERE artistId = ?',
       artistId
     );
 
@@ -29,7 +29,7 @@ class SongRepository {
   async createSong(songDto: ICreateSongDto) {
     songDto.statusId = 1;
     const [result] = (await db.query(
-      'INSERT INTO songs SET ?;',
+      'INSERT INTO songs SET ?',
       songDto
     )) as ResultSetHeader[];
 
@@ -38,7 +38,7 @@ class SongRepository {
   }
 
   async updateSong(id: string | number, songDto: IUpdateSongDto) {
-    await db.query('UPDATE songs SET ? WHERE songId = ?;', [songDto, id]);
+    await db.query('UPDATE songs SET ? WHERE songId = ?', [songDto, id]);
     const song = await this.getSongById(id);
     return song;
   }
@@ -49,8 +49,8 @@ class SongRepository {
     // const payload = { songId: id };
     // await db.query('DELETE FROM songsPlaylists WHERE ?;', payload);
     // await db.query('DELETE FROM songs WHERE ?;', payload);
-    await db.query('DELETE FROM songsPlaylists WHERE songId = ?;', id);
-    await db.query('DELETE FROM songs WHERE songId = ?;', id);
+    await db.query('DELETE FROM songsPlaylists WHERE songId = ?', id);
+    await db.query('DELETE FROM songs WHERE songId = ?', id);
 
     const song = await pendingSong;
     return song;
