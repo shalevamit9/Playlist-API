@@ -1,10 +1,9 @@
-import { ISong } from '../song/song.model';
-
-interface IPlaylistDto {
-  _id: string;
-  songs: ISong[];
+export interface IPlaylist {
+  playlistId: number;
+  userId: number;
+  name: string;
 }
 
-export type ICreatePlaylistDto = Omit<IPlaylistDto, '_id'>;
+export type ICreatePlaylistDto = Omit<IPlaylist, 'playlistId'>;
 
 export type IUpdatePlaylistDto = Partial<ICreatePlaylistDto>;

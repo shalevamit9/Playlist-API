@@ -1,92 +1,84 @@
-import PlaylistModel from './playlist.model.js';
+import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import {
+  IPlaylist,
   ICreatePlaylistDto,
   IUpdatePlaylistDto
 } from './playlist.interface.js';
-import SongModel from '../song/song.model.js';
+import { db } from '../../db/mysql.connection.js';
 
 class PlaylistRepository {
   async getAllPlaylists() {
-    const playlists = await PlaylistModel.find();
-    return playlists;
+    const [playlists] = await db.query('SELECT * FROM playlists');
+    return playlists as IPlaylist[];
   }
 
-  async getPlaylistById(id: string) {
-    const playlist = await PlaylistModel.findById(id);
-    return playlist;
+  async getPlaylistById(id: string | number) {
+    const [playlists] = (await db.query(
+      'SELECT * FROM playlists WHERE playlistId = ?',
+      id
+    )) as RowDataPacket[][];
+    return playlists[0] as IPlaylist;
   }
 
   async createPlaylist(playlistDto: ICreatePlaylistDto) {
-    const playlist = await PlaylistModel.create(playlistDto);
+    const [result] = (await db.query(
+      'INSERT INTO playlists SET ?',
+      playlistDto
+    )) as ResultSetHeader[];
 
-    const pendingSongs = playlist.songs.map(async (song) => {
-      const songModel = await SongModel.findById(song._id);
-      if (!songModel) return null;
-
-      songModel.playlists.push(playlist._id);
-      return await songModel.save();
-    });
-
-    await Promise.all(pendingSongs);
-
+    const playlist = await this.getPlaylistById(result.insertId);
     return playlist;
   }
 
-  async addSongToPlaylist(playlistId: string, songId: string) {
-    const [playlist, song] = await Promise.all([
-      PlaylistModel.findById(playlistId),
-      SongModel.findById(songId)
+  async addSongToPlaylist(
+    playlistId: string | number,
+    songId: string | number
+  ) {
+    const pendingInsert = db.query('INSERT INTO songsPlaylists SET ?', {
+      playlistId,
+      songId
+    });
+    const [playlist] = await Promise.all([
+      this.getPlaylistById(playlistId),
+      pendingInsert
     ]);
-    if (!playlist || !song) return null;
-
-    playlist.songs.push(song);
-    song.playlists.push(playlist._id);
-
-    await Promise.all([playlist.save(), song.save()]);
 
     return playlist;
   }
 
-  async updatePlaylist(id: string, playlistDto: IUpdatePlaylistDto) {
-    const playlist = await PlaylistModel.findByIdAndUpdate(id, playlistDto, {
-      new: true
-    });
-    return playlist;
-  }
-
-  async deletePlaylist(id: string) {
-    const playlist = await PlaylistModel.findByIdAndDelete(id);
-    if (!playlist) return null;
-
-    const pending = playlist.songs.map(async (song) => {
-      const songModel = await SongModel.findById(song._id);
-      if (!songModel) return null;
-      // songModel.playlists = songModel.playlists.filter(
-      //   (playlistId) => !playlistId.equals(id)
-      // );
-      songModel.playlists.pull(id);
-
-      return await songModel.save();
-    });
-    await Promise.all(pending);
-    return playlist;
-  }
-
-  async deleteSongFromPlaylist(playlistId: string, songId: string) {
-    const [playlist, song] = await Promise.all([
-      PlaylistModel.findById(playlistId),
-      SongModel.findById(songId)
+  async updatePlaylist(id: string | number, playlistDto: IUpdatePlaylistDto) {
+    const pendingUpdate = db.query(
+      'UPDATE playlists SET ? WHERE playlistId = ?',
+      [playlistDto, id]
+    );
+    const [playlist] = await Promise.all([
+      this.getPlaylistById(id),
+      pendingUpdate
     ]);
-    if (!playlist || !song) return null;
 
-    playlist.songs.pull(songId);
-    song.playlists.pull(playlistId);
-    // playlist.songs = playlist.songs.filter((song) => !song._id.equals(songId));
-    // song.playlists = song.playlists.filter(
-    //   (playId) => !playId.equals(playlistId)
-    // );
+    return playlist;
+  }
 
-    await Promise.all([playlist.save(), song.save()]);
+  async deletePlaylist(id: string | number) {
+    const playlist = await this.getPlaylistById(id);
+    await db.query('DELETE FROM songsPlaylists WHERE playlistId = ?', id);
+    await db.query('DELETE FROM playlists WHERE playlistId = ?', id);
+
+    return playlist;
+  }
+
+  async deleteSongFromPlaylist(
+    playlistId: string | number,
+    songId: string | number
+  ) {
+    const pendingDelete = db.query(
+      'DELETE FROM songsPlaylists WHERE playlistId = ? and songId = ?',
+      [playlistId, songId]
+    );
+    const [playlist] = await Promise.all([
+      this.getPlaylistById(playlistId),
+      pendingDelete
+    ]);
 
     return playlist;
   }
