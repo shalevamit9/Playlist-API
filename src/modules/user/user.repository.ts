@@ -41,8 +41,6 @@ class UserRepository {
   }
 
   async deleteUser(id: string | number) {
-    // first option
-    await db.query('DELETE FROM playlists WHERE userId = ?', id);
     const user = await this.getUserById(id);
     const [result] = (await db.query(
       'DELETE FROM users WHERE userId = ?',
@@ -50,13 +48,6 @@ class UserRepository {
     )) as ResultSetHeader[];
 
     return !!result.affectedRows && user;
-
-    // second option
-    // await db.query('DELETE FROM playlists WHERE userId = ?', id);
-    // const user = await this.getUserById(id);
-    // await db.query('DELETE FROM users WHERE userId = ?', id);
-
-    // return user;
   }
 }
 

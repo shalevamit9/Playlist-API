@@ -44,23 +44,23 @@ class SongRepository {
   }
 
   async deleteSong(id: string | number) {
-    const pendingSong = this.getSongById(id);
+    const song = await this.getSongById(id);
+    const [result] = (await db.query(
+      'DELETE FROM songs WHERE songId = ?',
+      id
+    )) as ResultSetHeader[];
 
-    // const payload = { songId: id };
-    // await db.query('DELETE FROM songsPlaylists WHERE ?;', payload);
-    // await db.query('DELETE FROM songs WHERE ?;', payload);
-    await db.query('DELETE FROM songsPlaylists WHERE songId = ?', id);
-    await db.query('DELETE FROM songs WHERE songId = ?', id);
-
-    const song = await pendingSong;
-    return song;
+    return !!result.affectedRows && song;
   }
 
   async deleteArtistSongs(artistId: string | number) {
     const songs = await this.getArtistSongs(artistId);
-    const pending = songs.map((song) => this.deleteSong(song.songId));
+    const [result] = (await db.query(
+      'DELETE FROM songs WHERE artistId = ?',
+      artistId
+    )) as ResultSetHeader[];
 
-    return await Promise.all(pending);
+    return !!result.affectedRows && songs;
   }
 }
 

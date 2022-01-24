@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
 import {
   IPlaylist,
@@ -61,26 +62,25 @@ class PlaylistRepository {
 
   async deletePlaylist(id: string | number) {
     const playlist = await this.getPlaylistById(id);
-    await db.query('DELETE FROM songsPlaylists WHERE playlistId = ?', id);
-    await db.query('DELETE FROM playlists WHERE playlistId = ?', id);
+    const [result] = (await db.query(
+      'DELETE FROM playlists WHERE playlistId = ?',
+      id
+    )) as ResultSetHeader[];
 
-    return playlist;
+    return !!result.affectedRows && playlist;
   }
 
   async deleteSongFromPlaylist(
     playlistId: string | number,
     songId: string | number
   ) {
-    const pendingDelete = db.query(
-      'DELETE FROM songsPlaylists WHERE playlistId = ? and songId = ?',
+    const playlist = await this.getPlaylistById(playlistId);
+    const [result] = (await db.query(
+      'DELETE FROM songsPlaylists WHERE playlistId = ? AND songId = ',
       [playlistId, songId]
-    );
-    const [playlist] = await Promise.all([
-      this.getPlaylistById(playlistId),
-      pendingDelete
-    ]);
+    )) as ResultSetHeader[];
 
-    return playlist;
+    return !!result.affectedRows && playlist;
   }
 }
 

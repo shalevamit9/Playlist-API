@@ -5,7 +5,6 @@ import {
   IUpdateArtistDto
 } from './artist.interface.js';
 import { RowDataPacket, ResultSetHeader } from 'mysql2';
-import songRepository from '../song/song.repository.js';
 
 class ArtistRepository {
   async getAllArtists() {
@@ -49,13 +48,12 @@ class ArtistRepository {
   }
 
   async deleteArtist(id: string | number) {
-    const pendingArtist = this.getArtistById(id);
-    // await db.query('DELETE FROM songs WHERE artistId = ?;', id);
-    await songRepository.deleteArtistSongs(id);
-    await db.query('DELETE FROM artists WHERE artistId = ?', id);
-
-    const artist = await pendingArtist;
-    return artist;
+    const artist = await this.getArtistById(id);
+    const [result] = (await db.query(
+      'DELETE FROM artists WHERE artistId = ?',
+      id
+    )) as ResultSetHeader[];
+    return !!result.affectedRows && artist;
   }
 }
 
