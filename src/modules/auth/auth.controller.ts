@@ -11,7 +11,6 @@ const { REFRESH_TOKEN_EXPIRATION } = process.env;
 class AuthController {
   login: RequestHandler = async (req, res) => {
     const loginCredentials: ILoginCredentials = req.body;
-    console.log(req.cookies.refreshToken);
 
     const tokens = await authService.login(loginCredentials);
     if (!tokens) throw new UnauthorizedException();
