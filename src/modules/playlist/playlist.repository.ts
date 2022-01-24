@@ -93,7 +93,7 @@ class PlaylistRepository {
   ) {
     const playlist = await this.getPlaylistById(playlistId);
     const [result] = (await db.query(
-      'DELETE FROM songsPlaylists WHERE playlistId = ? AND songId = ',
+      'DELETE FROM songsPlaylists WHERE playlistId = ? AND songId = ?',
       [playlistId, songId]
     )) as ResultSetHeader[];
 
