@@ -1,6 +1,6 @@
 export interface ISong {
   songId: number;
-  name: string;
+  songName: string;
   uri: string;
   artistId: number;
   statusId: number;

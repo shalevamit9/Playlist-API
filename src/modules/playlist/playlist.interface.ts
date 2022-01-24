@@ -1,7 +1,7 @@
 export interface IPlaylist {
   playlistId: number;
   userId: number;
-  name: string;
+  playlistName: string;
 }
 
 export type ICreatePlaylistDto = Omit<IPlaylist, 'playlistId'>;

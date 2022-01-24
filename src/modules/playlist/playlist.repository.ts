@@ -6,6 +6,9 @@ import {
   IUpdatePlaylistDto
 } from './playlist.interface.js';
 import { db } from '../../db/mysql.connection.js';
+import { ISong } from '../song/song.interface.js';
+
+type PlaylistWithSongs = IPlaylist & ISong;
 
 class PlaylistRepository {
   async getAllPlaylists() {
@@ -13,12 +16,26 @@ class PlaylistRepository {
     return playlists as IPlaylist[];
   }
 
+  async getAllPlaylistsWithSongs() {
+    const [playlists] = await db.query(
+      `SELECT * 
+      FROM playlists AS p 
+      JOIN songsPlaylists AS sp ON p.playlistId = s.playlistId
+      JOIN songs AS s ON sp.songId = sp.songId`
+    );
+    return playlists as PlaylistWithSongs[];
+  }
+
   async getPlaylistById(id: string | number) {
     const [playlists] = (await db.query(
-      'SELECT * FROM playlists WHERE playlistId = ?',
+      `SELECT *
+      FROM playlists AS p 
+      JOIN songsPlaylists AS sp ON p.playlistId = s.playlistId
+      JOIN songs AS s ON sp.songId = sp.songId
+      WHERE playlistId = ?`,
       id
     )) as RowDataPacket[][];
-    return playlists[0] as IPlaylist;
+    return playlists[0] as PlaylistWithSongs;
   }
 
   async createPlaylist(playlistDto: ICreatePlaylistDto) {
