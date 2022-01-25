@@ -35,9 +35,12 @@ class UserRepository {
   }
 
   async updateUser(id: string | number, userDto: IUpdateUserDto) {
-    await db.query('UPDATE users SET ? WHERE userId = ?', [userDto, id]);
-    const user = await this.getUserById(id);
-    return user;
+    const [result] = (await db.query('UPDATE users SET ? WHERE userId = ?', [
+      userDto,
+      id
+    ])) as ResultSetHeader[];
+
+    return !!result.affectedRows && (await this.getUserById(id));
   }
 
   async deleteUser(id: string | number) {

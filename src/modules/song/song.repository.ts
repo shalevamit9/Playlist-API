@@ -38,9 +38,11 @@ class SongRepository {
   }
 
   async updateSong(id: string | number, songDto: IUpdateSongDto) {
-    await db.query('UPDATE songs SET ? WHERE songId = ?', [songDto, id]);
-    const song = await this.getSongById(id);
-    return song;
+    const [result] = (await db.query('UPDATE songs SET ? WHERE songId = ?', [
+      songDto,
+      id
+    ])) as ResultSetHeader[];
+    return !!result.affectedRows && (await this.getSongById(id));
   }
 
   async deleteSong(id: string | number) {

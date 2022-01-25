@@ -65,16 +65,12 @@ class PlaylistRepository {
   }
 
   async updatePlaylist(id: string | number, playlistDto: IUpdatePlaylistDto) {
-    const pendingUpdate = db.query(
+    const [result] = (await db.query(
       'UPDATE playlists SET ? WHERE playlistId = ?',
       [playlistDto, id]
-    );
-    const [playlist] = await Promise.all([
-      this.getPlaylistById(id),
-      pendingUpdate
-    ]);
+    )) as ResultSetHeader[];
 
-    return playlist;
+    return !!result.affectedRows && (await this.getPlaylistById(id));
   }
 
   async deletePlaylist(id: string | number) {

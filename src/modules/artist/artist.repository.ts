@@ -42,9 +42,11 @@ class ArtistRepository {
   }
 
   async updateArtist(id: string | number, artistDto: IUpdateArtistDto) {
-    await db.query('UPDATE artists SET ? WHERE artistId = ?', [artistDto, id]);
-    const artist = this.getArtistById(id);
-    return artist;
+    const [result] = (await db.query(
+      'UPDATE artists SET ? WHERE artistId = ?',
+      [artistDto, id]
+    )) as ResultSetHeader[];
+    return !!result.affectedRows && (await this.getArtistById(id));
   }
 
   async deleteArtist(id: string | number) {
