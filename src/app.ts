@@ -18,6 +18,7 @@ import songRouter from './modules/song/song.router.js';
 import playlistRouter from './modules/playlist/playlist.router.js';
 import userRouter from './modules/user/user.router.js';
 import authRouter from './modules/auth/auth.router.js';
+import { mySqlDumpJob } from './jobs/mysql.dump.job.js';
 
 const { cwd } = process;
 const {
@@ -42,6 +43,7 @@ class App {
     this.initializeMiddlewares();
     this.initializeRoutes();
     this.initializeErrorMiddlewares();
+    this.initJobs();
   }
 
   private initializeMiddlewares() {
@@ -67,6 +69,10 @@ class App {
     this._app.use(printError);
     this._app.use(errorLogger(App.ERRORS_LOG_PATH));
     this._app.use(errorResponse);
+  }
+
+  private initJobs() {
+    mySqlDumpJob.start();
   }
 
   async start() {
