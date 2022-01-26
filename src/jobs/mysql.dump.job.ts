@@ -7,7 +7,6 @@ import { exec } from 'child_process';
 const { cwd } = process;
 
 export const mySqlDumpJob = new CronJob('*/20 * * * * *', async function () {
-  console.log('hi');
   const backupConfigJson = JSON.parse(
     await fs.readFile(path.join(cwd(), 'mysql.backup.config.json'), 'utf-8')
   );
