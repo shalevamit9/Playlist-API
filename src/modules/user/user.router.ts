@@ -10,7 +10,7 @@ class UserRouter {
   constructor() {
     this._router.get(
       '/',
-      verifyAuth([Roles.User, Roles.Admin]),
+      raw(verifyAuth([Roles.User, Roles.Admin])),
       raw(userController.getAllUsers)
     );
     this._router.get('/:id', raw(userController.getUserById));
