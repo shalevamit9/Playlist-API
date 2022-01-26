@@ -26,6 +26,18 @@ class SongRepository {
     return songs as ISong[];
   }
 
+  async getPlaylistSongs(playlistId: string | number) {
+    const [songs] = await db.query(
+      `SELECT s.* 
+      FROM songs AS s 
+      JOIN songsPlaylists AS sp ON s.songId = sp.songId
+      WHERE sp.playlistId = ?`,
+      playlistId
+    );
+
+    return songs as ISong[];
+  }
+
   async createSong(songDto: ICreateSongDto) {
     songDto.statusId = 1;
     const [result] = (await db.query(

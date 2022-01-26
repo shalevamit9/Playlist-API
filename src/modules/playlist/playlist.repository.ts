@@ -7,8 +7,12 @@ import {
 } from './playlist.interface.js';
 import { db } from '../../db/mysql.connection.js';
 import { ISong } from '../song/song.interface.js';
+import songRepository from '../song/song.repository.js';
 
-type PlaylistWithSongs = IPlaylist & ISong;
+// type PlaylistWithSongs = IPlaylist & ISong;
+export interface IPlaylistWithSongs extends IPlaylist {
+  songs: ISong[];
+}
 
 class PlaylistRepository {
   async getAllPlaylists() {
@@ -17,25 +21,45 @@ class PlaylistRepository {
   }
 
   async getAllPlaylistsWithSongs() {
-    const [playlists] = await db.query(
-      `SELECT * 
-      FROM playlists AS p 
-      JOIN songsPlaylists AS sp ON p.playlistId = s.playlistId
-      JOIN songs AS s ON sp.songId = sp.songId`
+    // option 1
+    // const [playlists] = await db.query(
+    //   `SELECT *
+    //   FROM playlists AS p
+    //   JOIN songsPlaylists AS sp ON p.playlistId = s.playlistId
+    //   JOIN songs AS s ON sp.songId = sp.songId`
+    // );
+    // return playlists as IPlaylistWithSongs[];
+
+    // option 2
+    const playlists = await this.getAllPlaylists();
+    const pending = playlists.map(({ playlistId }) =>
+      this.getPlaylistById(playlistId)
     );
-    return playlists as PlaylistWithSongs[];
+    return await Promise.all(pending);
   }
 
   async getPlaylistById(id: string | number) {
-    const [playlists] = (await db.query(
-      `SELECT *
-      FROM playlists AS p 
-      JOIN songsPlaylists AS sp ON p.playlistId = s.playlistId
-      JOIN songs AS s ON sp.songId = sp.songId
-      WHERE playlistId = ?`,
+    // option 1
+    // const [playlists] = (await db.query(
+    //   `SELECT *
+    //   FROM playlists AS p
+    //   JOIN songsPlaylists AS sp ON p.playlistId = s.playlistId
+    //   JOIN songs AS s ON sp.songId = sp.songId
+    //   WHERE playlistId = ?`,
+    //   id
+    // )) as RowDataPacket[][];
+    // return playlists[0] as IPlaylistWithSongs;
+
+    // option 2
+    const [[playlist]] = (await db.query(
+      'SELECT * FROM playlists WHERE playlistId = ?',
       id
     )) as RowDataPacket[][];
-    return playlists[0] as PlaylistWithSongs;
+    const songs = await songRepository.getPlaylistSongs(id);
+    playlist.songs = songs;
+
+    return playlist as IPlaylistWithSongs;
+    // return { ...playlist, songs } as IPlaylistWithSongs;
   }
 
   async createPlaylist(playlistDto: ICreatePlaylistDto) {

@@ -4,6 +4,7 @@ import bcrypt from 'bcryptjs';
 import { ILoginCredentials, ISignupCredentials } from './auth.interface.js';
 import userRepository from '../user/user.repository.js';
 import { ICreateUserDto } from '../user/user.interface.js';
+import { Roles } from '../../types/roles.enum.js';
 
 const { APP_SECRET, ACCESS_TOKEN_EXPIRATION, REFRESH_TOKEN_EXPIRATION } =
   process.env;
@@ -30,7 +31,7 @@ class AuthService {
 
   async signup(credentials: ISignupCredentials) {
     const existingUser = await userRepository.getUserByEmail(credentials.email);
-    if (!existingUser) return null;
+    if (existingUser) return null;
 
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(credentials.password, salt);
@@ -38,13 +39,16 @@ class AuthService {
     const userPayload: ICreateUserDto = {
       email: credentials.email,
       password: hashedPassword,
-      playlists: []
+      roles: Roles.User
     };
     const user = await userRepository.createUser(userPayload);
 
-    const tokens = this.generateTokens({ userId: user._id });
+    const tokens = this.generateTokens({
+      userId: user.userId,
+      userRoles: user.roles
+    });
 
-    await userRepository.updateUser(user._id, {
+    await userRepository.updateUser(user.userId, {
       refreshToken: tokens.refreshToken
     });
 
@@ -60,10 +64,10 @@ class AuthService {
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) return false;
 
-    const tokenPayload = { userId: user._id };
+    const tokenPayload = { userId: user.userId, userRoles: user.roles };
     const tokens = this.generateTokens(tokenPayload);
 
-    await userRepository.updateUser(user._id, {
+    await userRepository.updateUser(user.userId, {
       refreshToken: tokens.refreshToken
     });
 
@@ -93,7 +97,10 @@ class AuthService {
 
     if (user.refreshToken !== refreshToken) return null;
 
-    const accessToken = this.generateAccessToken({ userId });
+    const accessToken = this.generateAccessToken({
+      userId,
+      userRoles: user.roles
+    });
 
     return accessToken;
   }

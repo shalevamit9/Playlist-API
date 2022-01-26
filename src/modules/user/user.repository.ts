@@ -21,7 +21,7 @@ class UserRepository {
       'INSERT INTO users SET ?',
       userDto
     )) as ResultSetHeader[];
-
+    console.log(result);
     const user = await this.getUserById(result.insertId);
     return user;
   }
